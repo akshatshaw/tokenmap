@@ -14,6 +14,8 @@ One command. Auto-detected. Shareable.
 
 ---
 
+![alt text](tokenmap.png)
+
 ```
 pip install tokenmap
 tokenmap
