@@ -1,4 +1,4 @@
-"""OpenCode adapter for tokenviz."""
+"""OpenCode adapter for tokenmap."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ import os
 from datetime import datetime
 from typing import Optional
 
-from tokenviz.lib.concurrency import pool_map_sync
-from tokenviz.lib.db_snapshot import open_db
-from tokenviz.lib.paths import opencode_paths
-from tokenviz.types import AdapterResult, DayData
+from tokenmap.lib.concurrency import pool_map_sync
+from tokenmap.lib.db_snapshot import open_db
+from tokenmap.lib.paths import opencode_paths
+from tokenmap.types import AdapterResult, DayData
 
 MAX_BYTES = int(os.environ.get("BRAGGRID_MAX_RECORD_BYTES", "67108864"))
 

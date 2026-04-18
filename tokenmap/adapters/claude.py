@@ -1,4 +1,4 @@
-"""Claude Code adapter for tokenviz.
+"""Claude Code adapter for tokenmap.
 
 Reads data from three possible sources:
 1. JSONL conversation logs in ~/.claude/projects/
@@ -14,9 +14,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from tokenviz.lib.concurrency import pool_map_sync
-from tokenviz.lib.paths import claude_paths
-from tokenviz.types import AdapterResult, DayData, ModelTokenDetail
+from tokenmap.lib.concurrency import pool_map_sync
+from tokenmap.lib.paths import claude_paths
+from tokenmap.types import AdapterResult, DayData, ModelTokenDetail
 
 FILE_CONCURRENCY = int(os.environ.get("BRAGGRID_CONCURRENCY", "32"))
 

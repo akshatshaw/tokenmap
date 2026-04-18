@@ -1,4 +1,4 @@
-"""Cursor adapter for tokenviz.
+"""Cursor adapter for tokenmap.
 
 Reads data from Cursor's API (via access token) or local SQLite state DB.
 """
@@ -11,10 +11,10 @@ import os
 import re
 from typing import Optional
 
-from tokenviz.lib.db_snapshot import open_db
-from tokenviz.lib.debug import debug
-from tokenviz.lib.paths import cursor_state_paths
-from tokenviz.types import AdapterResult, DayData
+from tokenmap.lib.db_snapshot import open_db
+from tokenmap.lib.debug import debug
+from tokenmap.lib.paths import cursor_state_paths
+from tokenmap.types import AdapterResult, DayData
 
 
 def detect() -> bool:

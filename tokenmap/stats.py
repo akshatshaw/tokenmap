@@ -1,9 +1,9 @@
-"""Statistics computation for tokenviz."""
+"""Statistics computation for tokenmap."""
 
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from tokenviz.types import AggregatedData, Stats
+from tokenmap.types import AggregatedData, Stats
 
 WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 

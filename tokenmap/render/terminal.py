@@ -1,18 +1,18 @@
-"""Terminal renderer for tokenviz — uses Rich for colored output."""
+"""Terminal renderer for tokenmap — uses Rich for colored output."""
 
 from __future__ import annotations
 
 from rich.console import Console
 from rich.text import Text
 
-from tokenviz.themes import get_theme, is_dark
-from tokenviz.stats import format_tokens
-from tokenviz.pricing import compute_cost_summary, format_cost
-from tokenviz.render.shared import (
+from tokenmap.themes import get_theme, is_dark
+from tokenmap.stats import format_tokens
+from tokenmap.pricing import compute_cost_summary, format_cost
+from tokenmap.render.shared import (
     MONTH_NAMES, DAY_LABELS, TOOL_COLORS,
     build_grid, extract_display_stats, compute_global_totals,
 )
-from tokenviz.types import RenderOptions, Theme, ToolPanel
+from tokenmap.types import RenderOptions, Theme, ToolPanel
 
 BLOCK = "\u2588\u2588"
 TERMINAL_DAY_LABELS = [l if l else "   " for l in DAY_LABELS]
@@ -58,7 +58,7 @@ def render_terminal(panels: list[ToolPanel], opts: RenderOptions | None = None) 
     def colored(s: str, color: str) -> str:
         return f"[{color}]{s}[/]"
 
-    lines.append(txt(" tokenviz"))
+    lines.append(txt(" tokenmap"))
     if opts.user:
         lines.append(lbl(f" @{opts.user}"))
     lines.append("")

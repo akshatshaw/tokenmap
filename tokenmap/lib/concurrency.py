@@ -1,4 +1,4 @@
-"""Concurrency utilities for tokenviz."""
+"""Concurrency utilities for tokenmap."""
 
 from __future__ import annotations
 

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Optional
 
-from tokenviz.adapters import claude, codex, opencode, cursor
-from tokenviz.lib.debug import debug
-from tokenviz.stats import compute_stats
-from tokenviz.types import (
+from tokenmap.adapters import claude, codex, opencode, cursor
+from tokenmap.lib.debug import debug
+from tokenmap.stats import compute_stats
+from tokenmap.types import (
     AdapterResult, AggregatedData, DayData, ToolCapabilities, ToolPanel,
 )
 

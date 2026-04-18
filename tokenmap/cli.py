@@ -1,4 +1,4 @@
-"""CLI entry point for tokenviz."""
+"""CLI entry point for tokenmap."""
 
 from __future__ import annotations
 
@@ -8,15 +8,15 @@ from datetime import datetime
 
 import click
 
-from tokenviz.aggregator import aggregate_multi
-from tokenviz.clipboard import copy_image_to_clipboard
-from tokenviz.lib.debug import set_verbose
-from tokenviz.render.shared import compute_global_totals
-from tokenviz.render.terminal import render_terminal
-from tokenviz.render.svg import render_svg
-from tokenviz.render.png import svg_to_png
-from tokenviz.themes import get_all_theme_names, get_bg_color
-from tokenviz.types import RenderOptions
+from tokenmap.aggregator import aggregate_multi
+from tokenmap.clipboard import copy_image_to_clipboard
+from tokenmap.lib.debug import set_verbose
+from tokenmap.render.shared import compute_global_totals
+from tokenmap.render.terminal import render_terminal
+from tokenmap.render.svg import render_svg
+from tokenmap.render.png import svg_to_png
+from tokenmap.themes import get_all_theme_names, get_bg_color
+from tokenmap.types import RenderOptions
 
 
 def _get_timestamp() -> str:
@@ -32,7 +32,7 @@ def _confirm_save(file_path: str) -> bool:
         return False
 
 
-@click.command("tokenviz")
+@click.command("tokenmap")
 @click.option("--claude", "use_claude", is_flag=True, help="Include Claude Code data")
 @click.option("--codex", "use_codex", is_flag=True, help="Include Codex data")
 @click.option("--opencode", "use_opencode", is_flag=True, help="Include OpenCode data")
@@ -48,7 +48,7 @@ def _confirm_save(file_path: str) -> bool:
 @click.option("--list-themes", is_flag=True, help="Show all available themes")
 @click.option("--verbose", is_flag=True, help="Show debug output")
 @click.option("--cost", "show_cost", is_flag=True, help="Show estimated cost breakdown by model")
-@click.version_option(version="0.1.0", prog_name="tokenviz")
+@click.version_option(version="0.1.0", prog_name="tokenmap")
 def main(
     use_claude: bool,
     use_codex: bool,
@@ -131,7 +131,7 @@ def main(
             ts = _get_timestamp()
 
             if fmt == "svg":
-                out_path = out or f"tokenviz_{ts}.svg"
+                out_path = out or f"tokenmap_{ts}.svg"
                 abs_path = os.path.abspath(out_path)
                 if not _confirm_save(abs_path):
                     click.echo("Skipped saving.")
@@ -140,7 +140,7 @@ def main(
                     f.write(svg)
                 click.echo(f"\nSaved to {abs_path}")
             else:
-                out_path = out or f"tokenviz_{ts}.png"
+                out_path = out or f"tokenmap_{ts}.png"
                 abs_path = os.path.abspath(out_path)
                 if not _confirm_save(abs_path):
                     click.echo("Skipped saving.")

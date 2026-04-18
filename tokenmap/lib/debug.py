@@ -1,4 +1,4 @@
-"""Debug/verbose logging for tokenviz."""
+"""Debug/verbose logging for tokenmap."""
 
 _enabled: bool = False
 

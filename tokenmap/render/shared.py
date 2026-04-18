@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from tokenviz.stats import format_tokens
-from tokenviz.types import (
+from tokenmap.stats import format_tokens
+from tokenmap.types import (
     AggregatedData, DisplayStats, GridCell, GridResult, Stats, ToolPanel,
 )
 

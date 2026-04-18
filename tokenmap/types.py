@@ -1,4 +1,4 @@
-"""Core data types for tokenviz."""
+"""Core data types for tokenmap."""
 
 from __future__ import annotations
 

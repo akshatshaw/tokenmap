@@ -1,4 +1,4 @@
-"""PNG conversion for tokenviz — converts SVG to PNG using CairoSVG."""
+"""PNG conversion for tokenmap — converts SVG to PNG using CairoSVG."""
 
 from __future__ import annotations
 

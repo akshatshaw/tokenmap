@@ -1,4 +1,4 @@
-"""SQLite database helpers for tokenviz.
+"""SQLite database helpers for tokenmap.
 
 Uses Python's built-in sqlite3 module, which is much simpler than
 the JS version's sql.js WASM approach. Handles locked databases by
@@ -13,7 +13,7 @@ import sqlite3
 import tempfile
 from typing import Any
 
-from tokenviz.lib.debug import debug
+from tokenmap.lib.debug import debug
 
 
 class DbHandle:
@@ -69,7 +69,7 @@ def open_db(db_path: str) -> DbHandle:
 
 def _open_copy(db_path: str) -> DbHandle:
     """Copy the database files to a temp directory and open from there."""
-    tmp_dir = tempfile.mkdtemp(prefix="tokenviz-")
+    tmp_dir = tempfile.mkdtemp(prefix="tokenmap-")
     db_name = os.path.basename(db_path)
     tmp_db = os.path.join(tmp_dir, db_name)
 

@@ -1,8 +1,8 @@
-"""Color themes for tokenviz heatmaps."""
+"""Color themes for tokenmap heatmaps."""
 
 from __future__ import annotations
 
-from tokenviz.types import Theme
+from tokenmap.types import Theme
 
 THEMES: dict[str, Theme] = {
     # Light themes

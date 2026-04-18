@@ -1,7 +1,7 @@
-"""Tests for tokenviz.pricing module."""
+"""Tests for tokenmap.pricing module."""
 
-from tokenviz.pricing import get_pricing, format_cost, compute_cost_summary, DEFAULT_PRICING
-from tokenviz.types import ModelTokenDetail
+from tokenmap.pricing import get_pricing, format_cost, compute_cost_summary, DEFAULT_PRICING
+from tokenmap.types import ModelTokenDetail
 
 
 class TestGetPricing:

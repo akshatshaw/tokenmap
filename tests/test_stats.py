@@ -1,7 +1,7 @@
-"""Tests for tokenviz.stats module."""
+"""Tests for tokenmap.stats module."""
 
-from tokenviz.stats import format_tokens, compute_stats
-from tokenviz.types import AggregatedData, DayData
+from tokenmap.stats import format_tokens, compute_stats
+from tokenmap.types import AggregatedData, DayData
 
 
 class TestFormatTokens:

@@ -1,4 +1,4 @@
-"""JSONL streaming reader for tokenviz."""
+"""JSONL streaming reader for tokenmap."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ def stream_jsonl(
                     continue
                 if len(line.encode("utf-8")) > MAX_BYTES:
                     print(
-                        f"[tokenviz] Skipping oversized record: {file_path}:{line_num} (>{MAX_BYTES} bytes)",
+                        f"[tokenmap] Skipping oversized record: {file_path}:{line_num} (>{MAX_BYTES} bytes)",
                         file=sys.stderr,
                     )
                     continue

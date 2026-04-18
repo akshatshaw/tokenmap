@@ -1,9 +1,9 @@
-"""Model pricing and cost calculation for tokenviz."""
+"""Model pricing and cost calculation for tokenmap."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from tokenviz.types import ModelTokenDetail
+from tokenmap.types import ModelTokenDetail
 
 
 @dataclass

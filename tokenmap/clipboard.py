@@ -1,4 +1,4 @@
-"""OS clipboard integration for tokenviz."""
+"""OS clipboard integration for tokenmap."""
 
 from __future__ import annotations
 

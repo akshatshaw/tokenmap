@@ -1,9 +1,9 @@
-"""Tests for tokenviz.render.shared module."""
+"""Tests for tokenmap.render.shared module."""
 
-from tokenviz.render.shared import (
+from tokenmap.render.shared import (
     build_grid, extract_display_stats, compute_global_totals,
 )
-from tokenviz.types import AggregatedData, DayData, Stats, ToolPanel, ToolCapabilities
+from tokenmap.types import AggregatedData, DayData, Stats, ToolPanel, ToolCapabilities
 
 
 class TestBuildGrid:

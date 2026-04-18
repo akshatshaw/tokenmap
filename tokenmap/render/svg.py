@@ -1,18 +1,18 @@
-"""SVG renderer for tokenviz — generates SVG heatmap images."""
+"""SVG renderer for tokenmap — generates SVG heatmap images."""
 
 from __future__ import annotations
 
 import math
 from datetime import datetime
 
-from tokenviz.themes import get_theme
-from tokenviz.stats import format_tokens
-from tokenviz.pricing import compute_cost_summary, format_cost
-from tokenviz.render.shared import (
+from tokenmap.themes import get_theme
+from tokenmap.stats import format_tokens
+from tokenmap.pricing import compute_cost_summary, format_cost
+from tokenmap.render.shared import (
     MONTH_NAMES, DAY_LABELS, TOOL_COLORS,
     build_grid, extract_display_stats, compute_global_totals,
 )
-from tokenviz.types import GridResult, RenderOptions, Theme, ToolPanel
+from tokenmap.types import GridResult, RenderOptions, Theme, ToolPanel
 
 CELL_SIZE = 11
 CELL_GAP = 2
@@ -228,7 +228,7 @@ def render_svg(panels: list[ToolPanel], opts: RenderOptions | None = None) -> st
     .metric-value {{ font-size: 16px; font-weight: 700; fill: {theme.text}; }}
   </style>""")
 
-    parts.append(f'<text x="{MARGIN_LEFT}" y="26" class="title" dominant-baseline="auto">{_escape_xml("tokenviz")}</text>')
+    parts.append(f'<text x="{MARGIN_LEFT}" y="26" class="title" dominant-baseline="auto">{_escape_xml("tokenmap")}</text>')
     if user:
         parts.append(f'<text x="{MARGIN_LEFT}" y="44" class="subtitle" dominant-baseline="auto">@{_escape_xml(user)}</text>')
         y = 64

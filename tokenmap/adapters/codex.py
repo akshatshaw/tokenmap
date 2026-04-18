@@ -1,4 +1,4 @@
-"""Codex CLI adapter for tokenviz.
+"""Codex CLI adapter for tokenmap.
 
 Reads data from JSONL session files and SQLite database.
 """
@@ -11,11 +11,11 @@ import re
 from datetime import datetime
 from typing import Optional
 
-from tokenviz.lib.concurrency import pool_map_sync
-from tokenviz.lib.db_snapshot import open_db
-from tokenviz.lib.jsonl_stream import stream_jsonl
-from tokenviz.lib.paths import codex_paths
-from tokenviz.types import AdapterResult, DayData
+from tokenmap.lib.concurrency import pool_map_sync
+from tokenmap.lib.db_snapshot import open_db
+from tokenmap.lib.jsonl_stream import stream_jsonl
+from tokenmap.lib.paths import codex_paths
+from tokenmap.types import AdapterResult, DayData
 
 
 def _find_jsonl_files(directory: str, year_filter: Optional[int]) -> list[str]:

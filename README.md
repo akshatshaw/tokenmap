@@ -1,22 +1,22 @@
 <div align="center">
 
-# tokenviz
+# tokenmap
 
 **Your AI coding stats, visualized.**
 
 A GitHub-style contribution heatmap that shows how much you actually use AI coding tools.
 One command. Auto-detected. Shareable.
 
-[![PyPI version](https://img.shields.io/pypi/v/tokenviz.svg)](https://pypi.org/project/tokenviz/)
-[![license](https://img.shields.io/pypi/l/tokenviz.svg)](https://github.com/harshkedia177/tokenviz/blob/main/LICENSE)
+[![PyPI version](https://img.shields.io/pypi/v/tokenmap.svg)](https://pypi.org/project/tokenmap/)
+[![license](https://img.shields.io/pypi/l/tokenmap.svg)](https://github.com/akshatshaw/tokenmap/blob/main/LICENSE)
 
 </div>
 
 ---
 
 ```
-pip install tokenviz
-tokenviz
+pip install tokenmap
+tokenmap
 ```
 
 That's it. It reads your local data, renders a heatmap in your terminal, and exports a shareable PNG.
@@ -30,12 +30,12 @@ That's it. It reads your local data, renders a heatmap in your terminal, and exp
 | **OpenCode**    | `~/.local/share/opencode/`       | Tokens, models, messages          |
 | **Cursor**      | Cursor API + local `state.vscdb` | Tokens, models, usage events      |
 
-tokenviz auto-detects which tools you have installed. No configuration needed.
+tokenmap auto-detects which tools you have installed. No configuration needed.
 
 ## Install
 
 ```bash
-pip install tokenviz
+pip install tokenmap
 ```
 
 Requires **Python 3.10+**.
@@ -59,44 +59,44 @@ sudo dnf install cairo-devel
 
 ```bash
 # Basic — auto-detect all tools, export PNG
-tokenviz
+tokenmap
 
 # Add your name to the heatmap
-tokenviz --user yourname
+tokenmap --user yourname
 
 # Filter to a specific tool
-tokenviz --claude
-tokenviz --codex
-tokenviz --cursor
-tokenviz --opencode
+tokenmap --claude
+tokenmap --codex
+tokenmap --cursor
+tokenmap --opencode
 
 # Filter to a specific year
-tokenviz --year 2025
+tokenmap --year 2025
 
 # Change the color theme
-tokenviz --theme dark-green
+tokenmap --theme dark-green
 
 # Export as SVG instead of PNG
-tokenviz --export svg
+tokenmap --export svg
 
 # Custom output path
-tokenviz --out ~/Desktop/my-ai-usage.png
+tokenmap --out ~/Desktop/my-ai-usage.png
 
 # Terminal only, no file export
-tokenviz --no-export
+tokenmap --no-export
 
 # Copy PNG to clipboard (macOS/Linux/Windows)
-tokenviz --copy
+tokenmap --copy
 
 # Dump raw stats as JSON (for scripting)
-tokenviz --json
+tokenmap --json
 
 # Show estimated cost breakdown by model
-tokenviz --cost
-tokenviz --claude --cost
+tokenmap --cost
+tokenmap --claude --cost
 
 # See all themes
-tokenviz --list-themes
+tokenmap --list-themes
 ```
 
 ## Themes
@@ -123,7 +123,7 @@ tokenviz --list-themes
 | `--theme <name>` | Color theme                            | `green`        |
 | `--export <fmt>` | Export format: `png` or `svg`          | `png`          |
 | `--no-export`    | Skip file export, terminal only        | —              |
-| `--out <path>`   | Custom output file path                | `tokenviz.png` |
+| `--out <path>`   | Custom output file path                | `tokenmap.png` |
 | `--copy`         | Copy PNG to clipboard after export     | —              |
 | `--year <year>`  | Filter to a specific year              | last 365 days  |
 | `--json`         | Output raw stats as JSON               | —              |
@@ -133,8 +133,8 @@ tokenviz --list-themes
 ## Programmatic Usage
 
 ```python
-from tokenviz import aggregate_multi, render_terminal, render_svg, compute_stats
-from tokenviz.types import RenderOptions
+from tokenmap import aggregate_multi, render_terminal, render_svg, compute_stats
+from tokenmap.types import RenderOptions
 
 # Load data from all detected tools
 panels = aggregate_multi()
@@ -152,7 +152,7 @@ for panel in panels:
 
 ## How It Works
 
-tokenviz reads **locally stored data** from your AI coding tools. It never sends data anywhere — everything stays on your machine.
+tokenmap reads **locally stored data** from your AI coding tools. It never sends data anywhere — everything stays on your machine.
 
 1. **Detect** — scans for installed tool data directories
 2. **Aggregate** — merges token usage, sessions, and model stats across tools

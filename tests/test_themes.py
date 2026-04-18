@@ -1,6 +1,6 @@
-"""Tests for tokenviz.themes module."""
+"""Tests for tokenmap.themes module."""
 
-from tokenviz.themes import get_theme, is_dark, get_all_theme_names, get_bg_color
+from tokenmap.themes import get_theme, is_dark, get_all_theme_names, get_bg_color
 
 
 class TestGetTheme:
