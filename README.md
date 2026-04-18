@@ -163,7 +163,7 @@ tokenmap reads **locally stored data** from your AI coding tools. It never sends
 
 - All data is read **locally** from your filesystem
 - Nothing is uploaded or transmitted
-- The only network request is Cursor's API (to fetch your own usage CSV, using your local auth token) — and even that's optional with a local fallback
+- The only network request is Cursor's API (to fetch your own usage CSV, using your local auth token) — and even that's optional with a loca
 
 ## Attribution
 
