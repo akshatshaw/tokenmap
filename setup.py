@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="tokenmap",
-    version="0.1.0",
+    version="0.1.1",
     author="Akshat Shaw",
     description="GitHub-style contribution heatmap for your AI coding tool usage. Supports Claude Code, Codex, OpenCode & Cursor.",
     long_description=description,
@@ -18,7 +18,7 @@ setup(
     install_requires=[
         "click>=8.0",
         "rich>=13.0",
-        "cairosvg>=2.7",
+        "pymupdf>=1.24.0",
         "httpx>=0.24",
     ],
     extras_require={

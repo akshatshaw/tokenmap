@@ -48,7 +48,7 @@ def _confirm_save(file_path: str) -> bool:
 @click.option("--list-themes", is_flag=True, help="Show all available themes")
 @click.option("--verbose", is_flag=True, help="Show debug output")
 @click.option("--cost", "show_cost", is_flag=True, help="Show estimated cost breakdown by model")
-@click.version_option(version="0.1.0", prog_name="tokenmap")
+@click.version_option(version="0.1.1", prog_name="tokenmap")
 def main(
     use_claude: bool,
     use_codex: bool,

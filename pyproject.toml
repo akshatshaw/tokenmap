@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tokenmap"
-version = "0.1.0"
+version = "0.1.1"
 description = "GitHub-style contribution heatmap for your AI coding tool usage. Supports Claude Code, Codex, OpenCode & Cursor."
 readme = "README.md"
 license = "MIT"
@@ -33,7 +33,7 @@ classifiers = [
 dependencies = [
     "click>=8.0",
     "rich>=13.0",
-    "cairosvg>=2.7",
+    "pymupdf>=1.24.0",
     "httpx>=0.24",
 ]
 

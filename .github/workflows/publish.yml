@@ -21,9 +21,6 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install system dependencies (Cairo for cairosvg)
-        run: sudo apt-get update && sudo apt-get install -y libcairo2-dev
-
       - name: Build release distributions
         run: |
           python -m pip install build
