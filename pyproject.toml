@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tokenviz"
+version = "0.1.0"
+description = "GitHub-style contribution heatmap for your AI coding tool usage. Supports Claude Code, Codex, OpenCode & Cursor."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Akshat Shaw @akshatshaw & Harsh Kedia @harshkedia177" },
+]
+keywords = [
+    "cli", "heatmap", "contribution-graph", "github-style",
+    "claude-code", "claude", "codex", "opencode", "cursor",
+    "ai", "ai-tools", "coding-assistant", "usage", "tokens",
+    "statistics", "terminal", "developer-tools", "devtools",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "click>=8.0",
+    "rich>=13.0",
+    "cairosvg>=2.7",
+    "httpx>=0.24",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+
+[project.scripts]
+tokenviz = "tokenviz.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/harshkedia177/tokenviz"
+Repository = "https://github.com/harshkedia177/tokenviz"
+Issues = "https://github.com/harshkedia177/tokenviz/issues"
+
+[tool.setuptools.packages.find]
+include = ["tokenviz*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
