@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime
-from pathlib import Path
 from typing import Optional
 
 from tokenmap.lib.concurrency import pool_map_sync
@@ -429,24 +428,37 @@ def _load_from_stats_cache(dirs: list[str], year_filter: Optional[int]) -> Optio
     )
 
 
-def _enrich_from_stats_cache(result: AdapterResult, dirs: list[str]) -> None:
-    """Enrich detailedModelUsage from stats-cache.json's top-level modelUsage."""
+def _enrich_from_stats_cache(
+    result: AdapterResult, dirs: list[str], year_filter: Optional[int] = None
+) -> None:
+    """Enrich detailedModelUsage from stats-cache.json's per-day statsCache.
+
+    Uses the dated statsCache block so year_filter is respected. The top-level
+    modelUsage block is lifetime totals and would clobber filtered results.
+    """
     raw = _load_json(dirs, "stats-cache.json")
     if not raw:
         return
 
-    model_usage = raw.get("modelUsage")
-    if not model_usage or not isinstance(model_usage, dict):
+    stats_cache = raw.get("statsCache")
+    if not stats_cache or not isinstance(stats_cache, dict):
         return
 
     enriched: dict[str, ModelTokenDetail] = {}
-    for model, usage in model_usage.items():
-        enriched[model] = ModelTokenDetail(
-            input_tokens=usage.get("inputTokens", 0) or 0,
-            output_tokens=usage.get("outputTokens", 0) or 0,
-            cache_read_tokens=usage.get("cacheReadInputTokens", 0) or 0,
-            cache_write_tokens=usage.get("cacheCreationInputTokens", 0) or 0,
-        )
+    for date_str, entry in stats_cache.items():
+        if year_filter and not date_str.startswith(str(year_filter)):
+            continue
+        models_data = entry.get("models")
+        if not models_data:
+            continue
+        for model_id, usage in models_data.items():
+            if model_id not in enriched:
+                enriched[model_id] = ModelTokenDetail()
+            detail = enriched[model_id]
+            detail.input_tokens += usage.get("inputTokens", 0) or 0
+            detail.output_tokens += usage.get("outputTokens", 0) or 0
+            detail.cache_read_tokens += usage.get("cacheReadTokens", 0) or 0
+            detail.cache_write_tokens += usage.get("cacheCreationTokens", 0) or 0
 
     if enriched:
         result.detailed_model_usage = enriched
@@ -471,7 +483,7 @@ def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
 
     jsonl_result = _load_from_jsonl(dirs, year_filter)
     if jsonl_result:
-        _enrich_from_stats_cache(jsonl_result, dirs)
+        _enrich_from_stats_cache(jsonl_result, dirs, year_filter)
         return jsonl_result
 
     stats_cache_result = _load_from_stats_cache(dirs, year_filter)

@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="tokenmap",
-    version="0.1.1",
+    version="0.1.2",
     author="Akshat Shaw",
     description="GitHub-style contribution heatmap for your AI coding tool usage. Supports Claude Code, Codex, OpenCode & Cursor.",
     long_description=description,
