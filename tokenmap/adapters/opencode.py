@@ -10,9 +10,11 @@ from typing import Optional
 from tokenmap.lib.concurrency import pool_map_sync
 from tokenmap.lib.db_snapshot import open_db
 from tokenmap.lib.paths import opencode_paths
-from tokenmap.types import AdapterResult, DayData
+from tokenmap.types import AdapterResult, DateRange, DayData
 
-MAX_BYTES = int(os.environ.get("BRAGGRID_MAX_RECORD_BYTES", "67108864"))
+MAX_BYTES = int(
+    os.environ.get("TOKENMAP_MAX_RECORD_BYTES", os.environ.get("BRAGGRID_MAX_RECORD_BYTES", "67108864"))
+)
 
 
 class _ParsedMessage:
@@ -143,7 +145,7 @@ def detect() -> bool:
     return os.path.isfile(paths.db) or os.path.isdir(paths.messages)
 
 
-def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
+def load(date_range: Optional[DateRange] = None) -> Optional[AdapterResult]:
     paths = opencode_paths()
     messages: list[_ParsedMessage] = []
     if os.path.isfile(paths.db):
@@ -175,7 +177,7 @@ def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
         except (ValueError, OSError):
             continue
         date_str = d.strftime("%Y-%m-%d")
-        if year_filter and not date_str.startswith(str(year_filter)):
+        if date_range and not date_range.contains(date_str):
             continue
         if date_str not in day_map:
             day_map[date_str] = {"inp": 0, "out": 0, "cr": 0, "msgs": 0, "models": {}}

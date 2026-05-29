@@ -14,7 +14,7 @@ from typing import Optional
 from tokenmap.lib.db_snapshot import open_db
 from tokenmap.lib.debug import debug
 from tokenmap.lib.paths import cursor_state_paths
-from tokenmap.types import AdapterResult, DayData
+from tokenmap.types import AdapterResult, DateRange, DayData
 
 
 def detect() -> bool:
@@ -155,7 +155,7 @@ class _DayEntry:
         self.models: dict[str, int] = {}
 
 
-def _parse_csv(csv: str, year_filter: Optional[int]) -> tuple[list[DayData], dict[str, int], dict[str, int]]:
+def _parse_csv(csv: str, date_range: Optional[DateRange]) -> tuple[list[DayData], dict[str, int], dict[str, int]]:
     lines = csv.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     lines = [l for l in lines if l.strip()]
     if len(lines) < 2:
@@ -175,7 +175,7 @@ def _parse_csv(csv: str, year_filter: Optional[int]) -> tuple[list[DayData], dic
         if not raw_date:
             continue
         date_str = raw_date[:10]
-        if year_filter and not date_str.startswith(str(year_filter)):
+        if date_range and not date_range.contains(date_str):
             continue
 
         raw_model = cols[col.get("Model", -1)] if "Model" in col else "unknown"
@@ -222,7 +222,7 @@ def _parse_csv(csv: str, year_filter: Optional[int]) -> tuple[list[DayData], dic
     return days, model_usage, {}
 
 
-def _load_local_stats(db_path: str, year_filter: Optional[int]) -> Optional[tuple[list[DayData], dict[str, int]]]:
+def _load_local_stats(db_path: str, date_range: Optional[DateRange]) -> Optional[tuple[list[DayData], dict[str, int]]]:
     try:
         debug(f"cursor: loading local stats from {db_path}")
         db = open_db(db_path)
@@ -245,7 +245,7 @@ def _load_local_stats(db_path: str, year_filter: Optional[int]) -> Optional[tupl
                     date_str = data.get("date")
                     if not date_str:
                         continue
-                    if year_filter and not date_str.startswith(str(year_filter)):
+                    if date_range and not date_range.contains(date_str):
                         continue
                     total_lines = (data.get("tabAcceptedLines", 0) or 0) + (data.get("composerAcceptedLines", 0) or 0)
                     pseudo_tokens = total_lines * 50
@@ -295,7 +295,7 @@ def _load_hourly_distribution() -> dict[str, int]:
         return {}
 
 
-def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
+def load(date_range: Optional[DateRange] = None) -> Optional[AdapterResult]:
     db_paths = cursor_state_paths()
     debug(f"cursor: state DB paths: {db_paths if db_paths else '(none found)'}")
     if not db_paths:
@@ -312,13 +312,13 @@ def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
             continue
         csv = _fetch_usage_csv(token)
         if csv:
-            days, model_usage, hour_counts = _parse_csv(csv, year_filter)
+            days, model_usage, hour_counts = _parse_csv(csv, date_range)
             used_api = True
             break
 
     if not used_api or not days:
         for db_path in db_paths:
-            local = _load_local_stats(db_path, year_filter)
+            local = _load_local_stats(db_path, date_range)
             if local and local[0]:
                 days, model_usage = local
                 break

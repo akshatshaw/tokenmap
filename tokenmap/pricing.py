@@ -43,6 +43,9 @@ class CostSummary:
 PRICING: dict[str, ModelPricing] = {
     # === Claude Models (official pricing from platform.claude.com) ===
 
+    # Opus 4.8 — $5 input, $25 output
+    "claude-opus-4-8": ModelPricing(5, 25, 0.50, 6.25),
+
     # Opus 4.7 — $5 input, $25 output
     "claude-opus-4-7": ModelPricing(5, 25, 0.50, 6.25),
 

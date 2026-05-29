@@ -15,9 +15,11 @@ from typing import Optional
 
 from tokenmap.lib.concurrency import pool_map_sync
 from tokenmap.lib.paths import claude_paths
-from tokenmap.types import AdapterResult, DayData, ModelTokenDetail
+from tokenmap.types import AdapterResult, DateRange, DayData, ModelTokenDetail
 
-FILE_CONCURRENCY = int(os.environ.get("BRAGGRID_CONCURRENCY", "32"))
+FILE_CONCURRENCY = int(
+    os.environ.get("TOKENMAP_CONCURRENCY", os.environ.get("BRAGGRID_CONCURRENCY", "32"))
+)
 
 
 def _find_jsonl_files(directory: str) -> list[str]:
@@ -99,7 +101,7 @@ def _extract_hour(timestamp: str) -> int:
         return 0
 
 
-def _parse_lines(content: str, year_prefix: Optional[str]) -> dict[str, _ParsedRecord]:
+def _parse_lines(content: str, date_range: Optional[DateRange]) -> dict[str, _ParsedRecord]:
     """Parse a JSONL file, keeping only the last streaming snapshot per requestId."""
     last_by_request: dict[str, _ParsedRecord] = {}
     anonymous_records: list[_ParsedRecord] = []
@@ -121,7 +123,7 @@ def _parse_lines(content: str, year_prefix: Optional[str]) -> dict[str, _ParsedR
                 continue
 
             date_str = timestamp[:10]
-            if year_prefix and not date_str.startswith(year_prefix):
+            if date_range and not date_range.contains(date_str):
                 continue
 
             input_tokens = usage.get("input_tokens", 0) or 0
@@ -189,20 +191,18 @@ def _accumulate_records(
             entry.sessions.add(rec.session_id)
 
 
-def _parse_file(file_path: str, year_prefix: Optional[str]) -> dict[str, _ParsedRecord]:
+def _parse_file(file_path: str, date_range: Optional[DateRange]) -> dict[str, _ParsedRecord]:
     """Parse a single JSONL file."""
     try:
         with open(file_path, "r", encoding="utf-8", errors="replace") as f:
             content = f.read()
-        return _parse_lines(content, year_prefix)
+        return _parse_lines(content, date_range)
     except OSError:
         return {}
 
 
-def _load_from_jsonl(dirs: list[str], year_filter: Optional[int]) -> Optional[AdapterResult]:
+def _load_from_jsonl(dirs: list[str], date_range: Optional[DateRange]) -> Optional[AdapterResult]:
     """Load data from JSONL conversation logs."""
-    year_prefix = str(year_filter) if year_filter else None
-
     all_files: list[str] = []
     for d in dirs:
         projects_dir = os.path.join(d, "projects")
@@ -215,7 +215,7 @@ def _load_from_jsonl(dirs: list[str], year_filter: Optional[int]) -> Optional[Ad
     # Parse files concurrently
     file_parsed = pool_map_sync(
         all_files,
-        lambda fp: _parse_file(fp, year_prefix),
+        lambda fp: _parse_file(fp, date_range),
         FILE_CONCURRENCY,
     )
 
@@ -288,7 +288,7 @@ def _load_from_jsonl(dirs: list[str], year_filter: Optional[int]) -> Optional[Ad
     )
 
 
-def _load_from_cache(dirs: list[str], year_filter: Optional[int]) -> Optional[AdapterResult]:
+def _load_from_cache(dirs: list[str], date_range: Optional[DateRange]) -> Optional[AdapterResult]:
     """Load data from readout-cost-cache.json."""
     cost_cache = _load_json(dirs, "readout-cost-cache.json")
     if not cost_cache:
@@ -304,7 +304,7 @@ def _load_from_cache(dirs: list[str], year_filter: Optional[int]) -> Optional[Ad
     first_date: Optional[str] = None
 
     for date_str, models in cost_days.items():
-        if year_filter and not date_str.startswith(str(year_filter)):
+        if date_range and not date_range.contains(date_str):
             continue
 
         input_tokens = 0
@@ -356,7 +356,7 @@ def _load_from_cache(dirs: list[str], year_filter: Optional[int]) -> Optional[Ad
     )
 
 
-def _load_from_stats_cache(dirs: list[str], year_filter: Optional[int]) -> Optional[AdapterResult]:
+def _load_from_stats_cache(dirs: list[str], date_range: Optional[DateRange]) -> Optional[AdapterResult]:
     """Load data from stats-cache.json."""
     raw = _load_json(dirs, "stats-cache.json")
     if not raw:
@@ -372,7 +372,7 @@ def _load_from_stats_cache(dirs: list[str], year_filter: Optional[int]) -> Optio
     first_date: Optional[str] = None
 
     for date_str, entry in stats_cache.items():
-        if year_filter and not date_str.startswith(str(year_filter)):
+        if date_range and not date_range.contains(date_str):
             continue
         models_data = entry.get("models")
         if not models_data:
@@ -429,11 +429,11 @@ def _load_from_stats_cache(dirs: list[str], year_filter: Optional[int]) -> Optio
 
 
 def _enrich_from_stats_cache(
-    result: AdapterResult, dirs: list[str], year_filter: Optional[int] = None
+    result: AdapterResult, dirs: list[str], date_range: Optional[DateRange] = None
 ) -> None:
     """Enrich detailedModelUsage from stats-cache.json's per-day statsCache.
 
-    Uses the dated statsCache block so year_filter is respected. The top-level
+    Uses the dated statsCache block so the date range is respected. The top-level
     modelUsage block is lifetime totals and would clobber filtered results.
     """
     raw = _load_json(dirs, "stats-cache.json")
@@ -446,7 +446,7 @@ def _enrich_from_stats_cache(
 
     enriched: dict[str, ModelTokenDetail] = {}
     for date_str, entry in stats_cache.items():
-        if year_filter and not date_str.startswith(str(year_filter)):
+        if date_range and not date_range.contains(date_str):
             continue
         models_data = entry.get("models")
         if not models_data:
@@ -475,19 +475,19 @@ def detect() -> bool:
     )
 
 
-def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
+def load(date_range: Optional[DateRange] = None) -> Optional[AdapterResult]:
     """Load Claude Code usage data."""
     dirs = claude_paths()
     if not dirs:
         return None
 
-    jsonl_result = _load_from_jsonl(dirs, year_filter)
+    jsonl_result = _load_from_jsonl(dirs, date_range)
     if jsonl_result:
-        _enrich_from_stats_cache(jsonl_result, dirs, year_filter)
+        _enrich_from_stats_cache(jsonl_result, dirs, date_range)
         return jsonl_result
 
-    stats_cache_result = _load_from_stats_cache(dirs, year_filter)
+    stats_cache_result = _load_from_stats_cache(dirs, date_range)
     if stats_cache_result:
         return stats_cache_result
 
-    return _load_from_cache(dirs, year_filter)
+    return _load_from_cache(dirs, date_range)

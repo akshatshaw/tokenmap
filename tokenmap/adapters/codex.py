@@ -15,10 +15,28 @@ from tokenmap.lib.concurrency import pool_map_sync
 from tokenmap.lib.db_snapshot import open_db
 from tokenmap.lib.jsonl_stream import stream_jsonl
 from tokenmap.lib.paths import codex_paths
-from tokenmap.types import AdapterResult, DayData
+from tokenmap.types import AdapterResult, DateRange, DayData
 
 
-def _find_jsonl_files(directory: str, year_filter: Optional[int]) -> list[str]:
+def _years_in_range(date_range: Optional[DateRange]) -> Optional[list[str]]:
+    """Return the year subdirs spanned by ``date_range``, or None to scan all.
+
+    Only narrows to specific year directories when the range is bounded on both
+    ends; otherwise we cannot enumerate the years up front and must walk all.
+    """
+    if not date_range or date_range.since is None or date_range.until is None:
+        return None
+    try:
+        start_year = int(date_range.since[:4])
+        end_year = int(date_range.until[:4])
+    except ValueError:
+        return None
+    if end_year < start_year:
+        return []
+    return [str(y) for y in range(start_year, end_year + 1)]
+
+
+def _find_jsonl_files(directory: str, date_range: Optional[DateRange]) -> list[str]:
     """Find all .jsonl files under the sessions directory."""
     if not os.path.isdir(directory):
         return []
@@ -35,10 +53,12 @@ def _find_jsonl_files(directory: str, year_filter: Optional[int]) -> list[str]:
         except PermissionError:
             pass
 
-    if year_filter:
-        year_dir = os.path.join(directory, str(year_filter))
-        if os.path.isdir(year_dir):
-            walk(year_dir)
+    years = _years_in_range(date_range)
+    if years is not None:
+        for year in years:
+            year_dir = os.path.join(directory, year)
+            if os.path.isdir(year_dir):
+                walk(year_dir)
     else:
         walk(directory)
 
@@ -209,10 +229,10 @@ def detect() -> bool:
     return os.path.isdir(paths.sessions) or os.path.isfile(paths.db)
 
 
-def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
+def load(date_range: Optional[DateRange] = None) -> Optional[AdapterResult]:
     """Load Codex CLI usage data."""
     paths = codex_paths()
-    jsonl_files = _find_jsonl_files(paths.sessions, year_filter)
+    jsonl_files = _find_jsonl_files(paths.sessions, date_range)
 
     day_map: dict[str, _DayEntry] = {}
     hour_counts: dict[str, int] = {}
@@ -235,7 +255,7 @@ def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
             date_str = r.get("date")
             if not date_str:
                 continue
-            if year_filter and not date_str.startswith(str(year_filter)):
+            if date_range and not date_range.contains(date_str):
                 continue
 
             total_tokens = r["input_tokens"] + r["cached_tokens"] + r["output_tokens"]
@@ -300,7 +320,7 @@ def load(year_filter: Optional[int] = None) -> Optional[AdapterResult]:
                         if not d:
                             continue
                         date_str = d.strftime("%Y-%m-%d")
-                        if year_filter and not date_str.startswith(str(year_filter)):
+                        if date_range and not date_range.contains(date_str):
                             continue
 
                         tokens = int(row[2] or 0)

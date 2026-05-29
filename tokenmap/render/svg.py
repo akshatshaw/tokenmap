@@ -209,7 +209,7 @@ def render_svg(panels: list[ToolPanel], opts: RenderOptions | None = None) -> st
     show_cost = opts.show_cost
 
     step = CELL_SIZE + CELL_GAP
-    panel_grids = [build_grid(p.data, opts.year) for p in panels]
+    panel_grids = [build_grid(p.data, opts.year, opts.date_range) for p in panels]
     num_weeks = panel_grids[0].num_weeks
     grid_width = num_weeks * step - CELL_GAP
     total_width = MARGIN_LEFT + grid_width + MARGIN_RIGHT
