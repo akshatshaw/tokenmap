@@ -7,6 +7,40 @@ from typing import Optional
 
 
 @dataclass
+class DateRange:
+    """An inclusive date window for filtering usage data.
+
+    Bounds are ISO ``YYYY-MM-DD`` strings, which sort lexicographically, so
+    membership tests are plain string comparisons. Either bound may be ``None``
+    (open-ended on that side).
+    """
+
+    since: Optional[str] = None  # inclusive lower bound, "YYYY-MM-DD"
+    until: Optional[str] = None  # inclusive upper bound, "YYYY-MM-DD"
+
+    @property
+    def is_unbounded(self) -> bool:
+        return self.since is None and self.until is None
+
+    def contains(self, date_str: Optional[str]) -> bool:
+        """Return True if ``date_str`` (``YYYY-MM-DD``) falls within the range."""
+        if not date_str:
+            return False
+        if self.since and date_str < self.since:
+            return False
+        if self.until and date_str > self.until:
+            return False
+        return True
+
+    @classmethod
+    def from_year(cls, year: Optional[int]) -> "DateRange":
+        """Build a full-year range as sugar for ``--year``."""
+        if year is None:
+            return cls()
+        return cls(since=f"{year:04d}-01-01", until=f"{year:04d}-12-31")
+
+
+@dataclass
 class ModelTokenDetail:
     """Per-model token breakdown for cost calculation."""
 
@@ -153,3 +187,4 @@ class RenderOptions:
     user: Optional[str] = None
     year: Optional[int] = None
     show_cost: bool = False
+    date_range: Optional["DateRange"] = None

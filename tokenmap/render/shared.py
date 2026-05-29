@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
+from typing import Optional
 from tokenmap.stats import format_tokens
 from tokenmap.types import (
-    AggregatedData, DisplayStats, GridCell, GridResult, Stats, ToolPanel,
+    AggregatedData, DateRange, DisplayStats, GridCell, GridResult, Stats, ToolPanel,
 )
 
 TOOL_COLORS: dict[str, str] = {
@@ -24,8 +25,26 @@ MONTH_NAMES: list[str] = [
 DAY_LABELS: list[str] = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
 
 
-def get_date_range(year: int | None = None) -> tuple[date, date]:
-    """Get the start and end dates for the heatmap grid."""
+def get_date_range(
+    year: int | None = None, date_range: Optional[DateRange] = None
+) -> tuple[date, date]:
+    """Get the start and end dates for the heatmap grid.
+
+    A bounded ``date_range`` (from ``--since``/``--until``) wins; ``year`` is
+    sugar for a full calendar year; otherwise the grid spans the last 365 days.
+    """
+    if date_range is not None and not date_range.is_unbounded:
+        if date_range.since:
+            start = date.fromisoformat(date_range.since)
+        elif date_range.until:
+            start = date.fromisoformat(date_range.until) - timedelta(days=364)
+        else:
+            start = date.today() - timedelta(days=364)
+        end = date.fromisoformat(date_range.until) if date_range.until else date.today()
+        dow = start.isoweekday()  # Mon=1..Sun=7
+        start += timedelta(days=1 - dow)
+        return start, end
+
     if year:
         start = date(year, 1, 1)
         dow = start.isoweekday()  # Mon=1..Sun=7
@@ -42,9 +61,12 @@ def get_date_range(year: int | None = None) -> tuple[date, date]:
     return start, end
 
 
-def build_grid(data: AggregatedData, year: int | None = None) -> GridResult:
+def build_grid(
+    data: AggregatedData, year: int | None = None,
+    date_range: Optional[DateRange] = None,
+) -> GridResult:
     """Build the heatmap grid from aggregated data."""
-    start, end = get_date_range(year)
+    start, end = get_date_range(year, date_range)
 
     day_tokens: dict[str, int] = {}
     for day in data.days:

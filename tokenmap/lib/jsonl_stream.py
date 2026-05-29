@@ -7,7 +7,11 @@ import os
 import sys
 from typing import Any, Callable, Generator, Optional
 
-MAX_BYTES = int(os.environ.get("BRAGGRID_MAX_RECORD_BYTES", "67108864"))
+# TOKENMAP_MAX_RECORD_BYTES is the current name; BRAGGRID_MAX_RECORD_BYTES is a
+# deprecated fallback kept for one release.
+MAX_BYTES = int(
+    os.environ.get("TOKENMAP_MAX_RECORD_BYTES", os.environ.get("BRAGGRID_MAX_RECORD_BYTES", "67108864"))
+)
 
 
 def stream_jsonl(

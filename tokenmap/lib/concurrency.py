@@ -9,7 +9,11 @@ from typing import Awaitable, Callable, TypeVar
 T = TypeVar("T")
 R = TypeVar("R")
 
-DEFAULT_CONCURRENCY = int(os.environ.get("BRAGGRID_CONCURRENCY", "4"))
+# TOKENMAP_CONCURRENCY is the current name; BRAGGRID_CONCURRENCY is a deprecated
+# fallback kept for one release.
+DEFAULT_CONCURRENCY = int(
+    os.environ.get("TOKENMAP_CONCURRENCY", os.environ.get("BRAGGRID_CONCURRENCY", "4"))
+)
 
 
 async def pool_map(

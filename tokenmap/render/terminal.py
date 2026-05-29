@@ -70,7 +70,7 @@ def render_terminal(panels: list[ToolPanel], opts: RenderOptions | None = None) 
 
     for p_idx, panel in enumerate(panels):
         ds = extract_display_stats(panel.stats)
-        gr = build_grid(panel.data, opts.year)
+        gr = build_grid(panel.data, opts.year, opts.date_range)
         tool_color = TOOL_COLORS.get(panel.tool, TOOL_COLORS["other"])
 
         if is_multi:

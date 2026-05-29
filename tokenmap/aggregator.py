@@ -8,7 +8,7 @@ from tokenmap.adapters import claude, codex, opencode, cursor
 from tokenmap.lib.debug import debug
 from tokenmap.stats import compute_stats
 from tokenmap.types import (
-    AdapterResult, AggregatedData, DayData, ToolCapabilities, ToolPanel,
+    AdapterResult, AggregatedData, DateRange, DayData, ToolCapabilities, ToolPanel,
 )
 
 _ADAPTERS: dict[str, object] = {
@@ -68,11 +68,73 @@ def _to_aggregated_data(name: str, result: AdapterResult) -> AggregatedData:
     )
 
 
+def filter_panel_by_model(panel: ToolPanel, model: str) -> Optional[ToolPanel]:
+    """Return a copy of ``panel`` restricted to models matching ``model``.
+
+    Matching is case-insensitive substring (so ``--model opus`` keeps every Opus
+    variant, ``--model claude-opus-4-7`` keeps just that one). Per-day
+    input/output/cache_read totals are scaled to the matched models' share of
+    each day's tokens, since the raw split isn't stored per model. Stats are
+    recomputed from the filtered data. Returns ``None`` if nothing matches.
+    """
+    needle = model.lower()
+
+    def matches(name: str) -> bool:
+        return needle in name.lower()
+
+    new_days: list[DayData] = []
+    for day in panel.data.days:
+        kept = {m: t for m, t in day.models.items() if matches(m)}
+        if not kept:
+            continue
+        day_total = sum(day.models.values())
+        ratio = (sum(kept.values()) / day_total) if day_total else 0.0
+        new_days.append(DayData(
+            date=day.date,
+            input_tokens=round(day.input_tokens * ratio),
+            output_tokens=round(day.output_tokens * ratio),
+            cache_read_tokens=round(day.cache_read_tokens * ratio),
+            sessions=day.sessions, messages=day.messages,
+            tool_calls=day.tool_calls, models=kept,
+        ))
+
+    if not new_days:
+        return None
+
+    new_data = AggregatedData(
+        days=new_days,
+        sources=list(panel.data.sources),
+        hour_counts=dict(panel.data.hour_counts),
+        total_sessions=panel.data.total_sessions,
+        total_messages=panel.data.total_messages,
+        first_session_date=min(d.date for d in new_days),
+        model_usage={m: t for m, t in panel.data.model_usage.items() if matches(m)},
+        detailed_model_usage={
+            m: t for m, t in panel.data.detailed_model_usage.items() if matches(m)
+        },
+        avg_session_seconds=panel.data.avg_session_seconds,
+    )
+    return ToolPanel(
+        tool=panel.tool, data=new_data,
+        stats=compute_stats(new_data), capabilities=panel.capabilities,
+    )
+
+
 def aggregate_multi(
     tools: Optional[list[str]] = None,
     year: Optional[int] = None,
+    date_range: Optional[DateRange] = None,
 ) -> list[ToolPanel]:
-    """Load data from each selected tool, returning a ToolPanel per tool."""
+    """Load data from each selected tool, returning a ToolPanel per tool.
+
+    ``date_range`` takes precedence over ``year`` (which is kept as sugar for a
+    full-year window). An unbounded range is passed to adapters as ``None`` so
+    the unfiltered fast paths are preserved.
+    """
+    if date_range is None:
+        date_range = DateRange.from_year(year)
+    effective_range = None if date_range.is_unbounded else date_range
+
     if tools:
         for t in tools:
             if t not in _ADAPTERS:
@@ -94,7 +156,7 @@ def aggregate_multi(
         adapter = _ADAPTERS[name]
         try:
             debug(f"{name}: loading...")
-            result = adapter.load(year)  # type: ignore[attr-defined]
+            result = adapter.load(effective_range)  # type: ignore[attr-defined]
             if not result:
                 debug(f"{name}: load() returned None")
                 continue
