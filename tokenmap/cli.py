@@ -79,7 +79,7 @@ def _infer_format(path: str) -> str:
 @click.option("--live-pricing/--no-live-pricing", "live_pricing", default=True,
               help="Fetch current model pricing from LiteLLM's public catalog, "
                    "cached 24h (default: on; falls back to built-in table offline)")
-@click.version_option(version="0.1.3", prog_name="tokenmap")
+@click.version_option(version="0.1.4", prog_name="tokenmap")
 def main(
     use_claude: bool,
     use_codex: bool,

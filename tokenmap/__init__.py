@@ -1,6 +1,6 @@
 """tokenmap — GitHub-style contribution heatmap for AI coding tool usage."""
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 from tokenmap.aggregator import aggregate_multi
 from tokenmap.stats import compute_stats, format_tokens
