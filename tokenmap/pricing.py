@@ -43,6 +43,13 @@ class CostSummary:
 PRICING: dict[str, ModelPricing] = {
     # === Claude Models (official pricing from platform.claude.com) ===
 
+    # Fable 5 / Mythos 5 — $10 input, $50 output
+    "claude-fable-5": ModelPricing(10, 50, 1.00, 12.50),
+    "claude-mythos-5": ModelPricing(10, 50, 1.00, 12.50),
+
+    # Sonnet 5 — $3 input, $15 output (intro $2/$10 through 2026-08-31; sticker kept)
+    "claude-sonnet-5": ModelPricing(3, 15, 0.30, 3.75),
+
     # Opus 4.8 — $5 input, $25 output
     "claude-opus-4-8": ModelPricing(5, 25, 0.50, 6.25),
 
@@ -77,9 +84,9 @@ PRICING: dict[str, ModelPricing] = {
 
     # Haiku 4.5 — $1 input, $5 output
     "claude-haiku-4-5": ModelPricing(1, 5, 0.10, 1.25),
+    "claude-haiku-4-5-20251001": ModelPricing(1, 5, 0.10, 1.25),
 
     # Haiku 3.5 — $0.80 input, $4 output
-    "claude-haiku-4-5-20251001": ModelPricing(0.80, 4, 0.08, 1.0),
     "claude-3-5-haiku-20241022": ModelPricing(0.80, 4, 0.08, 1.0),
     "claude-3-5-haiku": ModelPricing(0.80, 4, 0.08, 1.0),
 
@@ -114,22 +121,60 @@ DEFAULT_PRICING = ModelPricing(
     cache_write_per_m=3.75,
 )
 
+# Live pricing (fetched from LiteLLM's public catalog) is opt-in: the CLI
+# enables it by default, but library callers get the hardcoded table unless
+# they call set_live_pricing(True). Keeps tests and offline use network-free.
+_live_enabled: bool = False
+_table_cache: dict[str, ModelPricing] | None = None
+
+
+def set_live_pricing(enabled: bool) -> None:
+    """Enable or disable merging live-fetched pricing over the hardcoded table."""
+    global _live_enabled, _table_cache
+    _live_enabled = enabled
+    _table_cache = None
+
+
+def _pricing_table() -> dict[str, ModelPricing]:
+    """Hardcoded table, with live pricing merged over it when enabled."""
+    global _table_cache
+    if _table_cache is not None:
+        return _table_cache
+
+    table = PRICING
+    if _live_enabled:
+        try:
+            from tokenmap.pricing_live import load_live_pricing
+
+            live = load_live_pricing()
+        except Exception:
+            live = {}
+        if live:
+            # Live values win; keys already in PRICING keep their position so
+            # prefix-match ordering (first match wins) is unchanged.
+            table = {**PRICING, **live}
+
+    _table_cache = table
+    return table
+
 
 def get_pricing(model: str) -> ModelPricing:
     """Look up pricing for a model, using prefix/substring matching for versioned names."""
+    table = _pricing_table()
+
     # Exact match
-    if model in PRICING:
-        return PRICING[model]
+    if model in table:
+        return table[model]
 
     # Prefix match (e.g. "claude-opus-4-6-20260101" → "claude-opus-4-6")
-    for key in PRICING:
+    for key in table:
         if model.startswith(key):
-            return PRICING[key]
+            return table[key]
 
     # Substring match (e.g. "anthropic/claude-3-5-sonnet" → match "claude-3-5-sonnet-*")
-    for key in PRICING:
+    for key in table:
         if key in model or model in key:
-            return PRICING[key]
+            return table[key]
 
     return DEFAULT_PRICING
 

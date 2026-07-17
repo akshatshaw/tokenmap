@@ -26,6 +26,28 @@ class TestGetPricing:
         assert p.input_per_m == DEFAULT_PRICING.input_per_m
         assert p.output_per_m == DEFAULT_PRICING.output_per_m
 
+    def test_fable_5(self):
+        p = get_pricing("claude-fable-5")
+        assert p.input_per_m == 10
+        assert p.output_per_m == 50
+        assert p.cache_read_per_m == 1.00
+        assert p.cache_write_per_m == 12.50
+
+    def test_fable_5_dated_prefix(self):
+        p = get_pricing("claude-fable-5-20260601")
+        assert p.input_per_m == 10
+
+    def test_sonnet_5(self):
+        p = get_pricing("claude-sonnet-5")
+        assert p.input_per_m == 3
+        assert p.output_per_m == 15
+
+    def test_haiku_4_5_dated_id_uses_haiku_4_5_rates(self):
+        # Regression: this key previously carried Haiku 3.5 rates.
+        p = get_pricing("claude-haiku-4-5-20251001")
+        assert p.input_per_m == 1
+        assert p.output_per_m == 5
+
 
 class TestFormatCost:
     def test_zero(self):

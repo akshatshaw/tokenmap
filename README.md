@@ -137,6 +137,7 @@ tokenmap --list-themes
 | `--model <name>`      | Filter to models matching this name (substring)         | all models       |
 | `--json`              | Output raw stats as JSON (to stdout, or `--out` file)   | —                |
 | `--cost / --no-cost`  | Show estimated cost breakdown by model                  | on               |
+| `--live-pricing / --no-live-pricing` | Fetch current model pricing (cached 24h; offline falls back to built-in table) | on |
 | `--list-themes`       | Show all available themes                               | —                |
 
 ## Programmatic Usage
@@ -172,7 +173,9 @@ tokenmap reads **locally stored data** from your AI coding tools. It never sends
 
 - All data is read **locally** from your filesystem
 - Nothing is uploaded or transmitted
-- The only network request is Cursor's API (to fetch your own usage CSV, using your local auth token) — and even that's optional, with a local-only fallback that reads Cursor's `state.vscdb` on your machine when the API is unavailable.
+- Two optional network requests, both disable-able:
+  - Cursor's API (to fetch your own usage CSV, using your local auth token) — with a local-only fallback that reads Cursor's `state.vscdb` on your machine when the API is unavailable.
+  - A pricing lookup: a GET of [LiteLLM's public pricing catalog](https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json) (a static JSON file on GitHub) so cost estimates stay current for new models. **No data about you is sent** — it's a plain download, cached locally for 24 hours. Disable with `--no-live-pricing`; offline, tokenmap falls back to its built-in pricing table.
 
 ## Attribution
 
