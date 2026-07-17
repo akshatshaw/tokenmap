@@ -5,6 +5,21 @@ All notable changes to **tokenmap** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Live model pricing: cost estimates now fetch current per-model rates from
+  LiteLLM's public pricing catalog (plain GET of a static JSON file on GitHub,
+  cached locally for 24 hours — no user data is sent). Opt out with
+  `--no-live-pricing`; offline runs fall back to the built-in table.
+- Built-in pricing for the Claude 5 family: `claude-fable-5`,
+  `claude-mythos-5` ($10 in / $50 out per 1M) and `claude-sonnet-5`
+  ($3 in / $15 out per 1M).
+
+### Fixed
+- `claude-haiku-4-5-20251001` was priced at Haiku 3.5 rates ($0.80/$4);
+  it now uses the correct Haiku 4.5 rates ($1/$5).
+
 ## [0.1.3] - 2026-05-29
 
 ### Added

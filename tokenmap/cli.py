@@ -76,6 +76,9 @@ def _infer_format(path: str) -> str:
 @click.option("--verbose", is_flag=True, help="Show debug output")
 @click.option("--cost/--no-cost", "show_cost", default=True,
               help="Show estimated cost breakdown by model (default: on)")
+@click.option("--live-pricing/--no-live-pricing", "live_pricing", default=True,
+              help="Fetch current model pricing from LiteLLM's public catalog, "
+                   "cached 24h (default: on; falls back to built-in table offline)")
 @click.version_option(version="0.1.3", prog_name="tokenmap")
 def main(
     use_claude: bool,
@@ -96,6 +99,7 @@ def main(
     list_themes: bool,
     verbose: bool,
     show_cost: bool,
+    live_pricing: bool,
 ) -> None:
     """Shareable heatmap of your AI coding tool usage."""
     try:
@@ -137,6 +141,10 @@ def main(
 
         if verbose:
             set_verbose(True)
+
+        if live_pricing:
+            from tokenmap.pricing import set_live_pricing
+            set_live_pricing(True)
 
         # Tool selection:
         #   - Claude is included by default (--no-claude opts out).
